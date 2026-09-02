@@ -24,6 +24,7 @@ export function PegawaiForm({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<PegawaiFormInput>({
     resolver: zodResolver(pegawaiFormSchema),
@@ -34,6 +35,15 @@ export function PegawaiForm({
       ...defaultValues,
     },
   });
+
+  React.useEffect(() => {
+    reset({
+      kredit: 0,
+      status: 'aktif',
+      jenis: 'struktural',
+      ...defaultValues,
+    });
+  }, [defaultValues, reset]);
 
   const [serverError, setServerError] = React.useState<string | null>(null);
 

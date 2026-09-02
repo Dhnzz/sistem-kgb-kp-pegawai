@@ -171,6 +171,7 @@ export function PegawaiClient({ readOnly }: { readOnly: boolean }) {
           <DialogTitle>{editing ? 'Edit Pegawai' : 'Tambah Pegawai'}</DialogTitle>
         </DialogHeader>
         <PegawaiForm
+          key={editing?.id ?? 'new'}
           pangkats={pangkats}
           pegawaiId={editing?.id}
           defaultValues={
