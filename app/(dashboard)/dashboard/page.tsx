@@ -6,6 +6,9 @@ import { getFungsionalDueDate, isFungsionalDueIn60, getCreditRate, getNextJan1 }
 import { DueTable, type DueRow } from '@/components/dashboard/due-table';
 import { CreditProgressBar } from '@/components/credit/credit-progress-bar';
 import { ForecastBadge } from '@/components/credit/forecast-badge';
+import { KgbBarChart } from '@/components/dashboard/kgb-bar-chart';
+import { KpDonutChart } from '@/components/dashboard/kp-donut-chart';
+import { getKgbPerMonth, getKpByJenis } from '@/lib/chart';
 
 function formatDateISO(d: Date): string {
   return toISODate(d);
@@ -193,6 +196,17 @@ export default async function DashboardPage() {
 
   const isReadOnly = role === 'viewer';
 
+  // Chart data: 12 bulan KGB + donut KP by jenis (due 60 hari)
+  const chartPegawais = pegawais.map((p) => ({
+    tmtKgb: p.tmtKgb,
+    tmtKp: p.tmtKp,
+    jenis: p.jenis as string,
+    kredit: p.kredit,
+    pangkat: p.pangkat ? { thresholdNext: p.pangkat.thresholdNext } : null,
+  }));
+  const kgbPerMonth = getKgbPerMonth(chartPegawais);
+  const kpByJenis = getKpByJenis(chartPegawais);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -226,6 +240,18 @@ export default async function DashboardPage() {
           <p className="text-xs text-slate-400">sudah lewat jatuh tempo</p>
         </div>
       </div>
+
+      {totalPegawai === 0 ? (
+        <div className="rounded-lg border border-dashed bg-white p-8 text-center">
+          <p className="text-sm font-medium text-slate-700">Belum ada data pegawai</p>
+          <p className="mt-1 text-xs text-slate-500">Tambah pegawai atau import Excel untuk melihat dashboard.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <KgbBarChart data={kgbPerMonth} />
+          <KpDonutChart data={kpByJenis} />
+        </div>
+      )}
 
       <DueTable kgbRows={kgbDue} kpRows={kpDue} />
 

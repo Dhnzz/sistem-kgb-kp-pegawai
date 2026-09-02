@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev, t8]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --ignore-scripts || npm install
+      - run: npx prisma generate
+      - name: lint
+        run: npm run lint -- --max-warnings 0
+      - name: typecheck
+        run: npm run typecheck
+      - name: test
+        run: npm test
+      - name: prisma validate
+        run: npx prisma validate
+      - name: build
+        run: npm run build

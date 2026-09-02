@@ -25,7 +25,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           role: user.role,
           pegawaiId: user.pegawaiId,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // eslint-disable-next-line
         } as any;
       },
     }),

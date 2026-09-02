@@ -1,6 +1,7 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import type { Role } from '@/lib/rbac';
+import { LogTable } from '@/components/log/log-table';
 
 export default async function LogPage() {
   const session = await auth();
@@ -9,8 +10,8 @@ export default async function LogPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-bold">Log Notifikasi</h1>
-      <p className="text-sm text-slate-500">Hanya admin.</p>
-      <div className="rounded-lg border bg-white p-6 text-sm text-slate-500">Log notifikasi placeholder.</div>
+      <p className="text-sm text-slate-500">Status sent/failed per pegawai · channel email/webhook · tombol Resend untuk yang gagal.</p>
+      <LogTable />
     </div>
   );
 }

@@ -36,8 +36,30 @@ services:
       - '443:443'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
     depends_on:
       - app
+
+  certbot:
+    image: certbot/certbot:v2.11
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup.sh:/usr/local/bin/backup.sh:ro
+    env_file:
+      - .env
+    entrypoint: "/bin/sh -c 'chmod +x /usr/local/bin/backup.sh; echo \"0 2 * * * /usr/local/bin/backup.sh\" | crontab -; crond -f'"
 
 volumes:
   pgdata:

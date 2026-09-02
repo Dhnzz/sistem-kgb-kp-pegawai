@@ -143,7 +143,7 @@ function toNumber(v: number | string | { toString(): string }): number {
   // Prisma Decimal has toNumber() but also toString
   // Handle object with toNumber
   if (typeof v === 'object' && v !== null && 'toNumber' in v) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma Decimal toNumber()
+    // eslint-disable-next-line -- Prisma Decimal toNumber()
     const maybe = v as any;
     if (typeof maybe.toNumber === 'function') return maybe.toNumber();
   }
