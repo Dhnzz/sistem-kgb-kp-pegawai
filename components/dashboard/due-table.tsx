@@ -187,7 +187,7 @@ export function DueTable({ kgbRows, kpRows }: Props) {
                     )}
                     <td className="px-3 py-2 whitespace-nowrap">
                       <Button
-                        className="h-7 px-2 text-xs bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                        className="h-7 px-2 text-xs bg-[#2563EB] hover:bg-blue-700 text-white"
                         onClick={() => {
                           setConfirmPegawai({ id: r.id, nama: r.nama, nip: r.nip, pangkatKode: r.pangkatKode });
                           setConfirmOpen(true);

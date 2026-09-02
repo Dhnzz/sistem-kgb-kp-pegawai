@@ -10,9 +10,9 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', roles: ['admin', 'pegawai', 'viewer'] },
   { label: 'Pegawai', href: '/pegawai', roles: ['admin', 'viewer'] },
+  { label: 'Pangkat', href: '/pangkat', roles: ['admin'] },
   { label: 'Rekap', href: '/rekap', roles: ['admin', 'viewer'] },
   { label: 'Riwayat', href: '/riwayat', roles: ['admin', 'pegawai', 'viewer'] },
-  { label: 'Pangkat', href: '/pangkat', roles: ['admin'] },
   { label: 'Log Notifikasi', href: '/log', roles: ['admin'] },
 ];
 

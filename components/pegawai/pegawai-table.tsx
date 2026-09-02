@@ -76,22 +76,22 @@ export function PegawaiTable({
             <span className="text-xs text-slate-400">—</span>
           ) : (
             <div className="flex flex-wrap gap-1">
-              <Button
-                className="h-7 px-2 text-xs bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-                onClick={() => onEdit(row.original)}
-              >
-                Edit
-              </Button>
               {onPromote && (
                 <Button
-                  className="h-7 px-2 text-xs bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100"
+                  className="h-7 px-2 text-xs bg-[#2563EB] hover:bg-blue-700 text-white"
                   onClick={() => onPromote(row.original)}
                 >
                   Naik
                 </Button>
               )}
               <Button
-                className="h-7 px-2 text-xs bg-red-600 hover:bg-red-700"
+                className="h-7 px-2 text-xs bg-amber-400 hover:bg-amber-500 text-white border-amber-400"
+                onClick={() => onEdit(row.original)}
+              >
+                Edit
+              </Button>
+              <Button
+                className="h-7 px-2 text-xs bg-red-600 hover:bg-red-700 text-white"
                 onClick={() => onDelete(row.original)}
               >
                 Hapus
@@ -102,6 +102,9 @@ export function PegawaiTable({
     ],
     [onEdit, onDelete, onPromote, readOnly],
   );
+
+  const [pageSize, setPageSize] = React.useState(10);
+  const pageSizeOptions = [5, 10, 20, 50];
 
   const table = useReactTable({
     data,
@@ -114,8 +117,29 @@ export function PegawaiTable({
     initialState: { pagination: { pageSize: 10 } },
   });
 
+  React.useEffect(() => {
+    table.setPageSize(pageSize);
+  }, [pageSize, table]);
+
   return (
     <div className="space-y-3">
+      <div className="flex justify-end">
+        <label className="flex items-center gap-2 text-xs text-slate-600">
+          Tampilkan
+          <select
+            value={pageSize}
+            onChange={(e) => setPageSize(Number(e.target.value))}
+            className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs"
+            aria-label="Jumlah per halaman"
+          >
+            {pageSizeOptions.map((n) => (
+              <option key={n} value={n}>
+                {n} / hal
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
       <div className="overflow-auto rounded-lg border bg-white">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left text-xs font-semibold text-slate-600">
@@ -158,20 +182,23 @@ export function PegawaiTable({
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
         <span className="text-slate-600">
           Hal {table.getState().pagination.pageIndex + 1} dari {table.getPageCount() || 1} — {data.length} baris
         </span>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button
-            className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+            className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
             Prev
           </Button>
+          <span className="text-xs text-slate-500">
+            {table.getState().pagination.pageIndex + 1} / {table.getPageCount() || 1}
+          </span>
           <Button
-            className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+            className="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >

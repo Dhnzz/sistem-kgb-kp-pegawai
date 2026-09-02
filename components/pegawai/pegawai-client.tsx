@@ -114,6 +114,7 @@ export function PegawaiClient({ readOnly }: { readOnly: boolean }) {
         <div className="flex gap-2">
           {!readOnly && (
             <Button
+              className="bg-green-600 hover:bg-green-700 text-white"
               onClick={() => {
                 setEditing(null);
                 setShowForm(true);
@@ -154,7 +155,7 @@ export function PegawaiClient({ readOnly }: { readOnly: boolean }) {
           onKeyDown={(e) => e.key === 'Enter' && fetchData()}
           className="max-w-sm"
         />
-        <Button className="bg-slate-800 hover:bg-slate-900" onClick={fetchData}>
+        <Button className="bg-[#2563EB] hover:bg-blue-700 text-white" onClick={fetchData}>
           Cari
         </Button>
       </div>
