@@ -9,6 +9,11 @@ on:
 jobs:
   gate:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://kgb_user:kgb_pass@localhost:5432/kgb_kp?schema=public
+      NEXTAUTH_SECRET: test-secret-for-ci-at-least-32-chars-long
+      NEXTAUTH_URL: http://localhost:3000
+      CRON_SECRET: test-cron-secret-ci
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
