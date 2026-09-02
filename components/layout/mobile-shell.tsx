@@ -28,7 +28,7 @@ export function MobileShell({ role, email, children }: Props) {
             aria-label="Close menu"
             className="flex-1 bg-black/30 text-white"
             onClick={() => setOpen(false)}
-          >
+          />
           <div className="h-full">
             <Sidebar role={role} email={email} onNavigate={() => setOpen(false)} />
           </div>
