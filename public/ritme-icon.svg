@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Ritme icon">
+  <title>Ritme — icon</title>
+  <rect width="40" height="40" rx="10" fill="#2563EB"/>
+  <!-- outer rhythm ring — dashed circle suggesting periodic cycle (2y / 4y) -->
+  <circle cx="20" cy="20" r="10.5" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="22 7" opacity="0.92"/>
+  <!-- pulse / rhythm wave inside -->
+  <path d="M 10.5 20 L 14.2 20 L 16 14.2 L 18.2 25.8 L 20.6 15.2 L 22.8 20 L 29.5 20" fill="none" stroke="white" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="29.5" cy="20" r="1.7" fill="white"/>
+</svg>

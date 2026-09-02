@@ -1,10 +1,14 @@
-# Sistem KGB-KP Pegawai
+# Ritme
 
-> Pengingat & pencatatan KGB (2 tahun) dan KP (struktural 4 tahun / fungsional kredit 12.5–25) — Next.js + Prisma + Postgres — VPS kantor
+<p>
+  <img src="public/ritme-logo.svg" alt="Ritme — KGB · KP · Tepat Waktu" width="220" />
+</p>
+
+> **Ritme** — pengingat & pencatatan KGB (2 tahun) dan KP (struktural 4 tahun / fungsional kredit 12.5–25) — Next.js + Prisma + Postgres — VPS kantor. Ritme menjaga “ritme” kenaikan berkala agar tidak ada yang terlewat: jadwal dihitung otomatis, dashboard H-60, email + webhook, dan riwayat terpusat.
 
 **Spec:** lihat `docs/spec/SPEC.md` (single source of truth) + 5 leaf PRD/ARCH/DESIGN/SCHEMA/RULES.
 
-**Tickets:** `.scratch/sistem-kgb-kp-pegawai/issues/` (8 vertical slices) — frontier: T1
+**Nama sebelumnya:** Sistem KGB-KP Pegawai. Rebrand ke **Ritme** — lihat logo di `public/ritme-logo.svg` / `public/ritme-icon.svg` dan komponen `components/brand/`.
 
 ## Quick start (setelah T1)
 
@@ -22,6 +26,14 @@ Seed default:
 - Admin: `admin@example.com` / `Admin123!`
 - Pegawai: `pegawai1@example.com` … `pegawai5@example.com` / `pegawai123`
 - 17 pangkat I/a–IV/e + 100 pegawai dummy
+
+## Logo
+
+- `public/ritme-icon.svg` — mark 40×40 (bulat biru #2563EB + cincin ritme putus + gelombang pulse)
+- `public/ritme-logo.svg` — lockup horizontal (mark + wordmark Ritme + tagline KGB · KP · TEPAT WAKTU)
+- `components/brand/ritme-mark.tsx` / `components/brand/ritme-logo.tsx` — komponen React
+
+Makna: cincin putus = siklus periodik (2y KGB / 4y KP), gelombang = detak/ritme pengingat, titik = jatuh tempo H-60.
 
 ## Prisma
 

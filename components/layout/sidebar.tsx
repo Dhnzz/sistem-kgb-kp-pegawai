@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { getNavForRole, ROLE_LABEL, type Role } from '@/lib/rbac';
+import { RitmeLogo } from '@/components/brand/ritme-logo';
 
 type SidebarProps = {
   role: Role;
@@ -17,8 +18,8 @@ export function Sidebar({ role, onNavigate }: SidebarProps) {
   return (
     <aside className="flex h-full w-64 flex-col border-r bg-white">
       <div className="border-b px-6 py-5">
-        <h1 className="text-sm font-bold leading-tight text-slate-900">Sistem KGB-KP</h1>
-        <p className="text-xs text-slate-500">Kepegawaian</p>
+        <RitmeLogo size={34} />
+        <p className="mt-1 text-xs text-slate-500">Kepegawaian</p>
         <span className="mt-2 inline-flex rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-[#2563EB]">
           {ROLE_LABEL[role]}
         </span>

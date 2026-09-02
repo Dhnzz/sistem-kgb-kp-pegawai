@@ -36,7 +36,7 @@ export function normalizeCell(value: unknown): string {
  */
 export async function generateTemplateBuffer(): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'Sistem KGB-KP';
+  wb.creator = 'Ritme';
   wb.created = new Date();
   const ws = wb.addWorksheet('Pegawai', {
     properties: { tabColor: { argb: 'FF2563EB' } },

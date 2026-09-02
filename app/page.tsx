@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation';
+import { RitmeLogo } from '@/components/brand/ritme-logo';
 
 export default function HomePage() {
   redirect('/dashboard');
   return (
     <main className="mx-auto max-w-5xl p-8">
-      <h1 className="text-2xl font-bold text-slate-900">Sistem KGB-KP Pegawai</h1>
-      <p className="mt-2 text-slate-600">
-        Pengingat & pencatatan KGB (2 tahun) dan KP (struktural 4 tahun / fungsional kredit).
+      <RitmeLogo href={null} />
+      <p className="mt-3 text-slate-600">
+        Pengingat & pencatatan KGB (2 tahun) dan KP (struktural 4 tahun / fungsional kredit) — ritme kenaikan yang tidak pernah terlewat.
       </p>
       <div className="mt-6 rounded-lg border bg-white p-6 shadow-sm">
         <h2 className="font-semibold">Bootstrap OK</h2>

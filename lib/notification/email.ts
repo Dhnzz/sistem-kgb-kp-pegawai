@@ -36,7 +36,7 @@ export interface SendEmailOptions {
 
 export async function sendEmail(opts: SendEmailOptions): Promise<{ messageId: string }> {
   const transporter = getTransporter();
-  const from = process.env.SMTP_FROM ?? 'KGB-KP <noreply@example.com>';
+  const from = process.env.SMTP_FROM ?? 'Ritme <noreply@example.com>';
 
   // If no SMTP configured, mock success for dev/test
   if (!transporter) {
@@ -60,7 +60,7 @@ export function buildKgbReminderEmail(pegawai: { nama: string; nip: string }, du
   const dueStr = dueDate.toISOString().slice(0, 10);
   return {
     subject: `[KGB] Pengingat Kenaikan Gaji Berkala — jatuh tempo ${dueStr}`,
-    html: `<p>Yth. ${pegawai.nama} (${pegawai.nip}),</p><p>Pengingat: KGB Anda akan jatuh tempo pada <strong>${dueStr}</strong> (H-60). Mohon siapkan berkas.</p><p>Sistem KGB-KP Pegawai</p>`,
+    html: `<p>Yth. ${pegawai.nama} (${pegawai.nip}),</p><p>Pengingat: KGB Anda akan jatuh tempo pada <strong>${dueStr}</strong> (H-60). Mohon siapkan berkas.</p><p style="color:#64748B;font-size:12px;margin-top:16px">— Ritme · pengingat KGB & KP tepat waktu</p>`,
   };
 }
 
@@ -68,7 +68,7 @@ export function buildKpReminderEmail(pegawai: { nama: string; nip: string }, due
   const dueStr = dueDate.toISOString().slice(0, 10);
   return {
     subject: `[KP] Pengingat Kenaikan Pangkat — jatuh tempo ${dueStr}`,
-    html: `<p>Yth. ${pegawai.nama} (${pegawai.nip}),</p><p>Pengingat: Kenaikan Pangkat Anda akan jatuh tempo pada <strong>${dueStr}</strong> (H-60). Mohon siapkan berkas.</p><p>Sistem KGB-KP Pegawai</p>`,
+    html: `<p>Yth. ${pegawai.nama} (${pegawai.nip}),</p><p>Pengingat: Kenaikan Pangkat Anda akan jatuh tempo pada <strong>${dueStr}</strong> (H-60). Mohon siapkan berkas.</p><p style="color:#64748B;font-size:12px;margin-top:16px">— Ritme · pengingat KGB & KP tepat waktu</p>`, 
   };
 }
 
