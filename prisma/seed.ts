@@ -88,6 +88,17 @@ async function main() {
   });
   console.log(`Seeded admin: ${adminEmail} / ${adminPassword}`);
 
+  // Seed viewer user
+  const viewerEmail = 'viewer@example.com';
+  const viewerPassword = 'Viewer123!';
+  const viewerHashed = await bcrypt.hash(viewerPassword, 10);
+  await prisma.user.upsert({
+    where: { email: viewerEmail },
+    update: { passwordHash: viewerHashed, role: 'viewer' },
+    create: { email: viewerEmail, passwordHash: viewerHashed, role: 'viewer' },
+  });
+  console.log(`Seeded viewer: ${viewerEmail} / ${viewerPassword}`);
+
   // Seed 100 pegawai dummy
   console.log('Seeding pegawai...');
   const jenisOptions: Array<'struktural' | 'fungsional_muda' | 'fungsional_biasa'> = [
@@ -98,17 +109,14 @@ async function main() {
 
   // Clear existing pegawai for idempotent seed (only if not production)
   const existingCount = await prisma.pegawai.count();
+  let needed = 100 - existingCount;
   if (existingCount > 0) {
-    console.log(`Found ${existingCount} existing pegawai, skipping bulk create to keep idempotent`);
-    // Ensure at least 100 exist; if less, top up
-    const needed = 100 - existingCount;
+    console.log(`Found ${existingCount} existing pegawai`);
     if (needed <= 0) {
-      console.log('Seed complete');
-      return;
+      console.log('Pegawai count sufficient, skipping bulk create');
+      needed = 0;
     }
   }
-
-  const needed = 100 - (await prisma.pegawai.count());
   for (let i = 0; i < needed; i++) {
     const idx = existingCount + i;
     const fn = firstNames[idx % firstNames.length];

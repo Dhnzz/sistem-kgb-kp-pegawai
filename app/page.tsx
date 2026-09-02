@@ -1,4 +1,7 @@
+import { redirect } from 'next/navigation';
+
 export default function HomePage() {
+  redirect('/dashboard');
   return (
     <main className="mx-auto max-w-5xl p-8">
       <h1 className="text-2xl font-bold text-slate-900">Sistem KGB-KP Pegawai</h1>
