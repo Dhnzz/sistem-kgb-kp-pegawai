@@ -72,6 +72,16 @@ export function buildKpReminderEmail(pegawai: { nama: string; nip: string }, due
   };
 }
 
+export function buildPromotionEmail(
+  pegawai: { nama: string; nip: string; email: string },
+  detail: { dariPangkat: string; kePangkat: string; dariKredit: string; keKredit: string; tmtBaru: string },
+): { subject: string; html: string } {
+  return {
+    subject: `[KP] Selamat — Kenaikan Pangkat ${detail.dariPangkat} → ${detail.kePangkat}`,
+    html: `<p>Yth. ${pegawai.nama} (${pegawai.nip}),</p><p>Selamat! Kenaikan Pangkat Anda telah diproses otomatis pada <strong>${detail.tmtBaru}</strong>.</p><p>Dari pangkat <strong>${detail.dariPangkat}</strong> (${detail.dariKredit}) → <strong>${detail.kePangkat}</strong> (${detail.keKredit}). Kredit direset ke 0.</p><p style="color:#64748B;font-size:12px;margin-top:16px">— Ritme · pengingat KGB & KP tepat waktu</p>`,
+  };
+}
+
 export function buildAdminRecapEmail(summary: {
   today: string;
   total: number;

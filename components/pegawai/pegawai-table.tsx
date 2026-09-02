@@ -32,11 +32,13 @@ export function PegawaiTable({
   data,
   onEdit,
   onDelete,
+  onPromote,
   readOnly,
 }: {
   data: PegawaiRow[];
   onEdit: (row: PegawaiRow) => void;
   onDelete: (row: PegawaiRow) => void;
+  onPromote?: (row: PegawaiRow) => void;
   readOnly?: boolean;
 }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -73,13 +75,21 @@ export function PegawaiTable({
           readOnly ? (
             <span className="text-xs text-slate-400">—</span>
           ) : (
-            <div className="flex gap-1">
+            <div className="flex flex-wrap gap-1">
               <Button
                 className="h-7 px-2 text-xs bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
                 onClick={() => onEdit(row.original)}
               >
                 Edit
               </Button>
+              {onPromote && (
+                <Button
+                  className="h-7 px-2 text-xs bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100"
+                  onClick={() => onPromote(row.original)}
+                >
+                  Naik
+                </Button>
+              )}
               <Button
                 className="h-7 px-2 text-xs bg-red-600 hover:bg-red-700"
                 onClick={() => onDelete(row.original)}
@@ -90,7 +100,7 @@ export function PegawaiTable({
           ),
       }),
     ],
-    [onEdit, onDelete, readOnly],
+    [onEdit, onDelete, onPromote, readOnly],
   );
 
   const table = useReactTable({

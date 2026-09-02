@@ -7,6 +7,7 @@ import { Dialog, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { PegawaiFormInput } from '@/lib/pegawai-validation';
+import { ConfirmPromotionDialog } from '@/components/history/confirm-promotion-dialog';
 
 type Pangkat = { id: string; kode: string; nama: string };
 
@@ -28,6 +29,8 @@ export function PegawaiClient({ readOnly }: { readOnly: boolean }) {
   const [showForm, setShowForm] = React.useState(false);
   const [editing, setEditing] = React.useState<PegawaiRow | null>(null);
   const [showImport, setShowImport] = React.useState(false);
+  const [promotePegawai, setPromotePegawai] = React.useState<{ id: string; nama: string; nip: string; pangkatKode: string } | null>(null);
+  const [showPromote, setShowPromote] = React.useState(false);
 
   const fetchData = React.useCallback(async () => {
     setLoading(true);
@@ -72,6 +75,11 @@ export function PegawaiClient({ readOnly }: { readOnly: boolean }) {
   const handleEdit = (row: PegawaiRow) => {
     setEditing(row);
     setShowForm(true);
+  };
+
+  const handlePromote = (row: PegawaiRow) => {
+    setPromotePegawai({ id: row.id, nama: row.nama, nip: row.nip, pangkatKode: row.pangkat.kode });
+    setShowPromote(true);
   };
 
   const handleDelete = async (row: PegawaiRow) => {
@@ -154,7 +162,7 @@ export function PegawaiClient({ readOnly }: { readOnly: boolean }) {
       {loading ? (
         <div className="rounded-lg border bg-white p-8 text-center text-sm text-slate-500">Memuat...</div>
       ) : (
-        <PegawaiTable data={data} onEdit={handleEdit} onDelete={handleDelete} readOnly={readOnly} />
+        <PegawaiTable data={data} onEdit={handleEdit} onDelete={handleDelete} onPromote={readOnly ? undefined : handlePromote} readOnly={readOnly} />
       )}
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
@@ -192,6 +200,7 @@ export function PegawaiClient({ readOnly }: { readOnly: boolean }) {
       </Dialog>
 
       <ImportDialog open={showImport} onOpenChange={setShowImport} onImported={fetchData} />
+      <ConfirmPromotionDialog open={showPromote} onOpenChange={setShowPromote} pegawai={promotePegawai} onSuccess={fetchData} />
     </div>
   );
 }

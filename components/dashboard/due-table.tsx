@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ConfirmPromotionDialog } from '@/components/history/confirm-promotion-dialog';
 
 export type DueRow = {
   id: string;
@@ -49,6 +50,8 @@ export function DueTable({ kgbRows, kpRows }: Props) {
   const [query, setQuery] = React.useState('');
   const [page, setPage] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(10);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [confirmPegawai, setConfirmPegawai] = React.useState<{ id: string; nama: string; nip: string; pangkatKode: string } | null>(null);
 
   const activeRows = tab === 'KGB' ? kgbRows : kpRows;
 
@@ -125,12 +128,13 @@ export function DueTable({ kgbRows, kpRows }: Props) {
               <th className="px-3 py-2">{tab === 'KGB' ? 'Jatuh Tempo KGB' : 'Jatuh Tempo KP'}</th>
               <th className="px-3 py-2">Sisa</th>
               {tab === 'KP' && <th className="px-3 py-2">Kredit</th>}
+              <th className="px-3 py-2">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {paged.length === 0 ? (
               <tr>
-                <td colSpan={tab === 'KP' ? 7 : 6} className="px-3 py-8 text-center text-slate-500">
+                <td colSpan={tab === 'KP' ? 8 : 7} className="px-3 py-8 text-center text-slate-500">
                   {filtered.length === 0 && activeRows.length > 0
                     ? 'Tidak ada hasil untuk pencarian.'
                     : `Tidak ada yang jatuh tempo 60 hari ke depan 🎉`}
@@ -181,6 +185,17 @@ export function DueTable({ kgbRows, kpRows }: Props) {
                         )}
                       </td>
                     )}
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      <Button
+                        className="h-7 px-2 text-xs bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                        onClick={() => {
+                          setConfirmPegawai({ id: r.id, nama: r.nama, nip: r.nip, pangkatKode: r.pangkatKode });
+                          setConfirmOpen(true);
+                        }}
+                      >
+                        Konfirmasi Naik
+                      </Button>
+                    </td>
                   </tr>
                 );
               })
@@ -188,6 +203,8 @@ export function DueTable({ kgbRows, kpRows }: Props) {
           </tbody>
         </table>
       </div>
+
+      <ConfirmPromotionDialog open={confirmOpen} onOpenChange={setConfirmOpen} pegawai={confirmPegawai} onSuccess={() => window.location.reload()} />
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t p-3 text-sm">
         <span className="text-slate-600">
