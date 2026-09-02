@@ -19,7 +19,7 @@ export function Topbar({ email, role }: TopbarProps) {
       </div>
       <button
         onClick={() => signOut({ callbackUrl: '/login' })}
-        className="rounded-md border px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
         aria-label="Logout"
       >
         Logout

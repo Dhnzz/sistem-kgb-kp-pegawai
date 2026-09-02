@@ -26,9 +26,9 @@ export function MobileShell({ role, email, children }: Props) {
         <div className="fixed inset-0 z-40 flex md:hidden">
           <button
             aria-label="Close menu"
-            className="flex-1 bg-black/30"
+            className="flex-1 bg-black/30 text-white"
             onClick={() => setOpen(false)}
-          />
+          >
           <div className="h-full">
             <Sidebar role={role} email={email} onNavigate={() => setOpen(false)} />
           </div>
@@ -40,7 +40,7 @@ export function MobileShell({ role, email, children }: Props) {
           <button
             aria-label="Open menu"
             onClick={() => setOpen(true)}
-            className="rounded-md border px-3 py-1.5 text-sm"
+            className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
           >
             Menu
           </button>
