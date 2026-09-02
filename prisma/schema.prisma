@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Jenis {
+  struktural
+  fungsional_muda
+  fungsional_biasa
+
+  @@map("jenis")
+}
+
+enum Status {
+  aktif
+  nonaktif
+
+  @@map("status")
+}
+
+enum Role {
+  admin
+  pegawai
+  viewer
+
+  @@map("role")
+}
+
+enum PromotionType {
+  KGB
+  KP
+
+  @@map("promotion_type")
+}
+
+enum Channel {
+  email
+  webhook
+
+  @@map("channel")
+}
+
+enum NotificationStatus {
+  sent
+  failed
+
+  @@map("notification_status")
+}
+
+model Pangkat {
+  id            String    @id @default(uuid()) @db.Uuid
+  kode          String    @unique @db.VarChar(10)
+  nama          String    @db.VarChar(50)
+  golongan      String    @db.VarChar(5)
+  level         Int       @db.SmallInt
+  thresholdNext Decimal?  @map("threshold_next") @db.Decimal(5, 1)
+  urutan        Int       @unique @db.SmallInt
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  pegawais          Pegawai[]
+  promotionDari     PromotionHistory[] @relation("DariPangkat")
+  promotionKe       PromotionHistory[] @relation("KePangkat")
+
+  @@map("pangkat")
+}
+
+model Pegawai {
+  id         String   @id @default(uuid()) @db.Uuid
+  nip        String   @unique @db.VarChar(18)
+  nama       String   @db.VarChar(100)
+  email      String   @unique @db.VarChar(255)
+  pangkatId  String   @map("pangkat_id") @db.Uuid
+  pangkat    Pangkat  @relation(fields: [pangkatId], references: [id], onDelete: Restrict)
+  jenis      Jenis
+  tmtKgb     DateTime @map("tmt_kgb") @db.Date
+  tmtKp      DateTime @map("tmt_kp") @db.Date
+  kredit     Decimal  @default(0.0) @db.Decimal(5, 1)
+  status     Status   @default(aktif)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedBy  String?  @map("updated_by") @db.Uuid
+  updater    User?    @relation("PegawaiUpdater", fields: [updatedBy], references: [id], onDelete: SetNull)
+
+  histories     PromotionHistory[]
+  notifications NotificationLog[]
+  user          User?              @relation("PegawaiUser")
+
+  @@index([tmtKgb], map: "idx_pegawai_tmt_kgb")
+  @@index([tmtKp], map: "idx_pegawai_tmt_kp")
+  @@index([jenis], map: "idx_pegawai_jenis")
+  @@index([status], map: "idx_pegawai_status")
+  @@index([pangkatId], map: "idx_pegawai_pangkat")
+  @@map("pegawai")
+}
+
+model PromotionHistory {
+  id            String         @id @default(uuid()) @db.Uuid
+  pegawaiId     String         @map("pegawai_id") @db.Uuid
+  pegawai       Pegawai        @relation(fields: [pegawaiId], references: [id], onDelete: Cascade)
+  jenis         PromotionType
+  dariPangkatId String?        @map("dari_pangkat_id") @db.Uuid
+  dariPangkat   Pangkat?       @relation("DariPangkat", fields: [dariPangkatId], references: [id], onDelete: SetNull)
+  kePangkatId   String?        @map("ke_pangkat_id") @db.Uuid
+  kePangkat     Pangkat?       @relation("KePangkat", fields: [kePangkatId], references: [id], onDelete: SetNull)
+  dariKredit    Decimal?       @map("dari_kredit") @db.Decimal(5, 1)
+  keKredit      Decimal?       @map("ke_kredit") @db.Decimal(5, 1)
+  tmtLama       DateTime?      @map("tmt_lama") @db.Date
+  tmtBaru       DateTime?      @map("tmt_baru") @db.Date
+  catatan       String?        @db.Text
+  createdBy     String?        @map("created_by") @db.Uuid
+  creator       User?          @relation("HistoryCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([pegawaiId, createdAt(sort: Desc)], map: "idx_history_pegawai_created")
+  @@map("promotion_history")
+}
+
+model NotificationLog {
+  id         String             @id @default(uuid()) @db.Uuid
+  pegawaiId  String             @map("pegawai_id") @db.Uuid
+  pegawai    Pegawai            @relation(fields: [pegawaiId], references: [id], onDelete: Cascade)
+  type       PromotionType
+  dueDate    DateTime           @map("due_date") @db.Date
+  channel    Channel
+  status     NotificationStatus
+  payload    Json?              @db.JsonB
+  error      String?            @db.Text
+  sentAt     DateTime           @default(now()) @map("sent_at") @db.Timestamptz
+
+  @@unique([pegawaiId, type, dueDate, channel], map: "uq_notification_idempoten")
+  @@index([sentAt(sort: Desc)], map: "idx_notif_sent_at")
+  @@index([dueDate], map: "idx_notif_due")
+  @@map("notification_log")
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         Role     @default(pegawai)
+  pegawaiId    String?  @unique @map("pegawai_id") @db.Uuid
+  pegawai      Pegawai? @relation("PegawaiUser", fields: [pegawaiId], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  updatedPegawais  Pegawai[]          @relation("PegawaiUpdater")
+  createdHistories PromotionHistory[] @relation("HistoryCreator")
+
+  @@map("user")
+}
