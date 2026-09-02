@@ -19,6 +19,8 @@ export type DueRow = {
   nextKp: string;
   daysUntilKgb: number;
   daysUntilKp: number;
+  kredit?: string | null;
+  thresholdNext?: string | null;
 };
 
 type Props = {
@@ -122,12 +124,13 @@ export function DueTable({ kgbRows, kpRows }: Props) {
               <th className="px-3 py-2">{tab === 'KGB' ? 'TMT KGB' : 'TMT KP'}</th>
               <th className="px-3 py-2">{tab === 'KGB' ? 'Jatuh Tempo KGB' : 'Jatuh Tempo KP'}</th>
               <th className="px-3 py-2">Sisa</th>
+              {tab === 'KP' && <th className="px-3 py-2">Kredit</th>}
             </tr>
           </thead>
           <tbody>
             {paged.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
+                <td colSpan={tab === 'KP' ? 7 : 6} className="px-3 py-8 text-center text-slate-500">
                   {filtered.length === 0 && activeRows.length > 0
                     ? 'Tidak ada hasil untuk pencarian.'
                     : `Tidak ada yang jatuh tempo 60 hari ke depan 🎉`}
@@ -158,6 +161,26 @@ export function DueTable({ kgbRows, kpRows }: Props) {
                     <td className="px-3 py-2 whitespace-nowrap">
                       <DaysBadge days={days} />
                     </td>
+                    {tab === 'KP' && (
+                      <td className="px-3 py-2 whitespace-nowrap text-xs">
+                        {r.jenis !== 'struktural' ? (
+                          r.kredit !== undefined ? (
+                            <span className="flex flex-col gap-1">
+                              <span className="font-medium">{r.kredit ?? '-'} / {r.thresholdNext ?? '-'}</span>
+                              {r.kredit && r.thresholdNext && Number(r.kredit) + (r.jenis === 'fungsional_muda' ? 25 : 12.5) >= Number(r.thresholdNext) ? (
+                                <span className="inline-flex rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 border border-amber-200">Diprediksi naik 1 Jan</span>
+                              ) : (
+                                <span className="text-[10px] text-slate-500">Forecast {(Number(r.kredit ?? 0) + (r.jenis === 'fungsional_muda' ? 25 : 12.5)).toFixed(1)}/{r.thresholdNext}</span>
+                              )}
+                            </span>
+                          ) : (
+                            '-'
+                          )
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 );
               })

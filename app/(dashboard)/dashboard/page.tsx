@@ -2,7 +2,10 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import type { Role } from '@/lib/rbac';
 import { nextKgb, nextKpStruktural, isDueIn60, isOverdue, daysUntil, toISODate } from '@/lib/schedule';
+import { getFungsionalDueDate, isFungsionalDueIn60, getCreditRate, getNextJan1 } from '@/lib/credit';
 import { DueTable, type DueRow } from '@/components/dashboard/due-table';
+import { CreditProgressBar } from '@/components/credit/credit-progress-bar';
+import { ForecastBadge } from '@/components/credit/forecast-badge';
 
 function formatDateISO(d: Date): string {
   return toISODate(d);
@@ -32,11 +35,18 @@ export default async function DashboardPage() {
     if (!pegawai) return <p className="text-sm text-red-600">Data pegawai tidak ditemukan.</p>;
 
     const nextKgbDate = nextKgb(pegawai.tmtKgb);
-    const nextKpDate = nextKpStruktural(pegawai.tmtKp);
     const kgbDueIn60 = isDueIn60(nextKgbDate);
-    const kpDueIn60 = pegawai.jenis === 'struktural' ? isDueIn60(nextKpDate) : false;
     const kgbOverdue = isOverdue(nextKgbDate);
-    const kpOverdue = isOverdue(nextKpDate);
+
+    const isFungsional = pegawai.jenis !== 'struktural';
+    const thresholdNext = pegawai.pangkat.thresholdNext as unknown as string | number | null;
+    const fungsionalDue = isFungsional ? getFungsionalDueDate(pegawai.kredit as unknown as string, pegawai.jenis, thresholdNext) : null;
+    const nextKpStrukt = nextKpStruktural(pegawai.tmtKp);
+    const nextKpDate = isFungsional ? fungsionalDue : nextKpStrukt;
+    const kpDueIn60 = isFungsional
+      ? isFungsionalDueIn60(pegawai.kredit as unknown as string, pegawai.jenis, thresholdNext)
+      : isDueIn60(nextKpStrukt);
+    const kpOverdue = isFungsional ? (fungsionalDue ? isOverdue(fungsionalDue) : false) : isOverdue(nextKpStrukt);
 
     return (
       <div className="space-y-6">
@@ -61,41 +71,50 @@ export default async function DashboardPage() {
           </div>
           <div className="rounded-lg border bg-white p-5 shadow-sm">
             <h2 className="text-sm font-semibold text-slate-700">KP Berikutnya</h2>
-            <p className="mt-2 text-lg font-bold">{nextKpDate.toLocaleDateString('id-ID')}</p>
-            <p className="text-xs text-slate-500">Pangkat: {pegawai.pangkat.kode} — {pegawai.pangkat.nama}</p>
-            {pegawai.jenis === 'struktural' && (
-              <div className="mt-2 text-xs">
-                {kpOverdue ? (
-                  <span className="rounded bg-red-100 px-2 py-0.5 font-medium text-red-700">Lewat {Math.abs(daysUntil(nextKpDate))} hari</span>
-                ) : kpDueIn60 ? (
-                  <span className="rounded bg-amber-100 px-2 py-0.5 font-medium text-amber-800">Jatuh tempo {daysUntil(nextKpDate)} hari lagi</span>
-                ) : (
-                  <span className="text-slate-500">{daysUntil(nextKpDate)} hari lagi</span>
+            {isFungsional ? (
+              <>
+                <p className="mt-2 text-lg font-bold">{nextKpDate ? nextKpDate.toLocaleDateString('id-ID') : '—'}</p>
+                <p className="text-xs text-slate-500">Pangkat: {pegawai.pangkat.kode} — {pegawai.pangkat.nama}</p>
+                <div className="mt-2">
+                  <ForecastBadge kredit={String(pegawai.kredit)} jenis={pegawai.jenis} thresholdNext={thresholdNext as string | null} />
+                </div>
+                {nextKpDate && (
+                  <div className="mt-2 text-xs">
+                    {kpOverdue ? (
+                      <span className="rounded bg-red-100 px-2 py-0.5 font-medium text-red-700">Lewat {Math.abs(daysUntil(nextKpDate))} hari</span>
+                    ) : kpDueIn60 ? (
+                      <span className="rounded bg-amber-100 px-2 py-0.5 font-medium text-amber-800">Jatuh tempo {daysUntil(nextKpDate)} hari lagi</span>
+                    ) : (
+                      <span className="text-slate-500">{daysUntil(nextKpDate)} hari lagi</span>
+                    )}
+                  </div>
                 )}
-              </div>
-            )}
-            {pegawai.jenis !== 'struktural' && (
-              <p className="mt-1 text-xs text-slate-500">Fungsional — jadwal KP via kredit (lihat T5)</p>
+                {!nextKpDate && <p className="mt-1 text-xs text-slate-500">Belum memenuhi threshold untuk naik</p>}
+              </>
+            ) : (
+              <>
+                <p className="mt-2 text-lg font-bold">{nextKpStrukt.toLocaleDateString('id-ID')}</p>
+                <p className="text-xs text-slate-500">Pangkat: {pegawai.pangkat.kode} — {pegawai.pangkat.nama}</p>
+                <div className="mt-2 text-xs">
+                  {kpOverdue ? (
+                    <span className="rounded bg-red-100 px-2 py-0.5 font-medium text-red-700">Lewat {Math.abs(daysUntil(nextKpStrukt))} hari</span>
+                  ) : kpDueIn60 ? (
+                    <span className="rounded bg-amber-100 px-2 py-0.5 font-medium text-amber-800">Jatuh tempo {daysUntil(nextKpStrukt)} hari lagi</span>
+                  ) : (
+                    <span className="text-slate-500">{daysUntil(nextKpStrukt)} hari lagi</span>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
-        {pegawai.jenis !== 'struktural' && (
+        {isFungsional && (
           <div className="rounded-lg border bg-white p-5 shadow-sm">
             <h3 className="text-sm font-semibold">Kredit</h3>
-            <p className="mt-1 text-sm">
-              {String(pegawai.kredit)} / {pegawai.pangkat.thresholdNext ? String(pegawai.pangkat.thresholdNext) : '-'}
-              {pegawai.pangkat.thresholdNext && (
-                <span className="ml-2 text-xs text-slate-500">({pegawai.jenis === 'fungsional_muda' ? '25' : '12.5'} / 1 Jan)</span>
-              )}
-            </p>
-            {pegawai.pangkat.thresholdNext && (
-              <div className="mt-2 h-2 rounded-full bg-slate-100">
-                <div
-                  className="h-2 rounded-full bg-[#2563EB]"
-                  style={{ width: `${Math.min(100, (Number(pegawai.kredit) / Number(pegawai.pangkat.thresholdNext)) * 100)}%` }}
-                />
-              </div>
-            )}
+            <p className="mt-1 text-xs text-slate-500">Rate {getCreditRate(pegawai.jenis)} / 1 Jan • Threshold {thresholdNext ? String(thresholdNext) : 'puncak'}</p>
+            <div className="mt-3">
+              <CreditProgressBar kredit={String(pegawai.kredit)} thresholdNext={thresholdNext as string | null} />
+            </div>
           </div>
         )}
         <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-800">Info: Pengingat akan dikirim H-60 via email jika jadwal mendekati.</div>
@@ -117,10 +136,33 @@ export default async function DashboardPage() {
 
   for (const p of pegawais) {
     const nk = nextKgb(p.tmtKgb);
-    const np = nextKpStruktural(p.tmtKp);
     const dk = daysUntil(nk);
-    const dp = daysUntil(np);
-    const overdue = isOverdue(nk) || (p.jenis === 'struktural' && isOverdue(np));
+    const isStrukt = p.jenis === 'struktural';
+    const threshold = p.pangkat.thresholdNext as unknown as string | number | null;
+    let nextKp: Date;
+    let dp: number;
+    let isKpDue = false;
+    let overdueKp = false;
+    if (isStrukt) {
+      nextKp = nextKpStruktural(p.tmtKp);
+      dp = daysUntil(nextKp);
+      isKpDue = isDueIn60(nextKp);
+      overdueKp = isOverdue(nextKp);
+    } else {
+      const dueF = getFungsionalDueDate(p.kredit as unknown as string, p.jenis, threshold);
+      if (dueF) {
+        nextKp = dueF;
+        dp = daysUntil(nextKp);
+        isKpDue = isFungsionalDueIn60(p.kredit as unknown as string, p.jenis, threshold);
+        overdueKp = isOverdue(nextKp);
+      } else {
+        nextKp = getNextJan1();
+        dp = daysUntil(nextKp);
+        isKpDue = false;
+        overdueKp = false;
+      }
+    }
+    const overdue = isOverdue(nk) || overdueKp;
     if (overdue) overdueCount += 1;
 
     const row: DueRow = {
@@ -134,14 +176,15 @@ export default async function DashboardPage() {
       tmtKgb: formatDateISO(new Date(p.tmtKgb)),
       tmtKp: formatDateISO(new Date(p.tmtKp)),
       nextKgb: formatDateISO(nk),
-      nextKp: formatDateISO(np),
+      nextKp: formatDateISO(nextKp),
       daysUntilKgb: dk,
       daysUntilKp: dp,
+      kredit: String(p.kredit),
+      thresholdNext: threshold === null || threshold === undefined ? null : String(threshold),
     };
 
     if (isDueIn60(nk)) kgbDue.push(row);
-    // KP only for struktural in T4 (fungsional forecast in T5)
-    if (p.jenis === 'struktural' && isDueIn60(np)) kpDue.push(row);
+    if (isKpDue) kpDue.push(row);
   }
 
   // sort by daysUntil ascending (soonest first)
@@ -175,7 +218,7 @@ export default async function DashboardPage() {
         <div className="rounded-lg border bg-white p-4">
           <p className="text-xs text-slate-500">KP 60 hari</p>
           <p className="mt-1 text-2xl font-bold text-[#2563EB]">{kpDue.length}</p>
-          <p className="text-xs text-slate-400">struktural ≤60 hari</p>
+          <p className="text-xs text-slate-400">struktural+fungsional ≤60 hari</p>
         </div>
         <div className="rounded-lg border bg-white p-4">
           <p className="text-xs text-slate-500">Lewat</p>
